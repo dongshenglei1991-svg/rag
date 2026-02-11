@@ -1,0 +1,76 @@
+spring:
+  application:
+    name: rag-retrieval-system
+  
+  # 数据源配置
+  datasource:
+    url: jdbc:postgresql://192.168.14.128:5432/rag_system
+    username: postgres
+    password: root@Ubuntu123
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000        # 10 minutes - idle connections released after this
+      max-lifetime: 1800000       # 30 minutes - connections recycled to prevent stale connections
+      keepalive-time: 300000      # 5 minutes - keepalive query to prevent connection drops
+      leak-detection-threshold: 60000  # 1 minute - warn if connection not returned
+  
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.example.rag.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+
+# Qdrant 配置
+qdrant:
+  host: 192.168.14.128
+  port: 6333
+  grpc-port: 6334
+  collection-name: document_chunks
+  use-grpc: false  # 使用 REST API
+
+# OpenRouter 配置
+openrouter:
+  api-key: {API_KEY}
+  base-url: https://openrouter.ai/api/v1
+  embedding-model: qwen/qwen3-embedding-0.6b
+  chat-model: openai/gpt-4  # 可配置为其他模型
+  timeout: 30000  # 30 秒超时
+  max-retries: 3
+
+# RAG 系统配置
+rag:
+  document:
+    chunk-size: 800  # 文档片段大小（字符数）
+    chunk-overlap: 150  # 片段重叠大小（字符数）
+    supported-formats: pdf,txt,docx,md
+    max-file-size: 52428800  # 50MB
+    upload-dir: ./uploads  # 文件上传目录
+  
+  retrieval:
+    top-k: 5  # 检索返回的文档片段数量
+    min-score: 0.7  # 最小相似度分数阈值
+
+# 日志配置（详细配置见 logback-spring.xml）
+# logback-spring.xml 支持 Spring Profile 特性：
+#   - dev profile: com.example.rag DEBUG 级别
+#   - prod profile: com.example.rag INFO 级别
+#   - 默认: com.example.rag DEBUG 级别
+# 日志文件：logs/rag-system.log（滚动策略：10MB/文件，保留30天，总上限1GB）
+# 错误日志：logs/rag-system-error.log（仅 ERROR 级别）
+
+# 服务器配置
+server:
+  port: 8082
+  servlet:
+    context-path: /
