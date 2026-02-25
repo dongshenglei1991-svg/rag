@@ -25,9 +25,9 @@ public class QdrantInitializer implements ApplicationRunner {
     }
     
     /**
-     * 向量维度（与 Qwen3-Embedding-0.6B 匹配）
+     * 向量维度（与 OpenAI text-embedding-3-small 匹配）
      */
-    private static final int VECTOR_DIMENSION = 1024;
+    private static final int VECTOR_DIMENSION = 1536;
     
     /**
      * 距离度量方式（余弦相似度）

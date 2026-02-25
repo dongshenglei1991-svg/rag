@@ -37,7 +37,7 @@ class EmbeddingServiceImplTest {
         properties = new OpenRouterProperties();
         properties.setApiKey("test-api-key");
         properties.setBaseUrl(mockWebServer.url("/").toString());
-        properties.setEmbeddingModel("qwen/qwen3-embedding-0.6b");
+        properties.setEmbeddingModel("openai/text-embedding-3-small");
         properties.setTimeout(5000);
         properties.setMaxRetries(3);
         
@@ -67,13 +67,13 @@ class EmbeddingServiceImplTest {
                             "index": 0
                         }
                     ],
-                    "model": "qwen/qwen3-embedding-0.6b",
+                    "model": "openai/text-embedding-3-small",
                     "usage": {
                         "prompt_tokens": 5,
                         "total_tokens": 5
                     }
                 }
-                """.formatted(generateMockEmbedding(1024));
+                """.formatted(generateMockEmbedding(1536));
         
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -83,7 +83,7 @@ class EmbeddingServiceImplTest {
         float[] result = embeddingService.embed("测试文本");
         
         assertNotNull(result);
-        assertEquals(1024, result.length);
+        assertEquals(1536, result.length);
         
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals("POST", request.getMethod());
@@ -127,7 +127,7 @@ class EmbeddingServiceImplTest {
                 {
                     "object": "list",
                     "data": [],
-                    "model": "qwen/qwen3-embedding-0.6b"
+                    "model": "openai/text-embedding-3-small"
                 }
                 """;
         
@@ -155,7 +155,7 @@ class EmbeddingServiceImplTest {
                             "index": 0
                         }
                     ],
-                    "model": "qwen/qwen3-embedding-0.6b"
+                    "model": "openai/text-embedding-3-small"
                 }
                 """.formatted(generateMockEmbedding(512));
         
@@ -188,13 +188,13 @@ class EmbeddingServiceImplTest {
                             "index": 1
                         }
                     ],
-                    "model": "qwen/qwen3-embedding-0.6b",
+                    "model": "openai/text-embedding-3-small",
                     "usage": {
                         "prompt_tokens": 10,
                         "total_tokens": 10
                     }
                 }
-                """.formatted(generateMockEmbedding(1024), generateMockEmbedding(1024));
+                """.formatted(generateMockEmbedding(1536), generateMockEmbedding(1536));
         
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -206,8 +206,8 @@ class EmbeddingServiceImplTest {
         
         assertNotNull(results);
         assertEquals(2, results.size());
-        assertEquals(1024, results.get(0).length);
-        assertEquals(1024, results.get(1).length);
+        assertEquals(1536, results.get(0).length);
+        assertEquals(1536, results.get(1).length);
     }
     
     @Test
@@ -240,9 +240,9 @@ class EmbeddingServiceImplTest {
                             "index": 0
                         }
                     ],
-                    "model": "qwen/qwen3-embedding-0.6b"
+                    "model": "openai/text-embedding-3-small"
                 }
-                """.formatted(generateMockEmbedding(1024));
+                """.formatted(generateMockEmbedding(1536));
         
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -271,9 +271,9 @@ class EmbeddingServiceImplTest {
                             "index": 0
                         }
                     ],
-                    "model": "qwen/qwen3-embedding-0.6b"
+                    "model": "openai/text-embedding-3-small"
                 }
-                """.formatted(generateMockEmbedding(1024));
+                """.formatted(generateMockEmbedding(1536));
         
         mockWebServer.enqueue(new MockResponse()
                 .setResponseCode(200)
@@ -283,13 +283,13 @@ class EmbeddingServiceImplTest {
         float[] result = embeddingService.embed("测试文本");
         
         assertNotNull(result);
-        assertEquals(1024, result.length);
+        assertEquals(1536, result.length);
         assertEquals(3, mockWebServer.getRequestCount());
     }
     
     @Test
     void testGetDimension() {
-        assertEquals(1024, embeddingService.getDimension());
+        assertEquals(1536, embeddingService.getDimension());
     }
     
     private String generateMockEmbedding(int dimension) {

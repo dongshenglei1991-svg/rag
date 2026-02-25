@@ -3,6 +3,9 @@ package com.example.rag.service.impl;
 import com.example.rag.config.OpenRouterProperties;
 import com.example.rag.exception.BusinessException;
 import com.example.rag.service.EmbeddingService;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,7 +23,7 @@ import java.util.Map;
 
 /**
  * 向量化服务实现类
- * 使用 OpenRouter API 调用 Embedding 模型
+ * 使用 OpenRouter API 调用 OpenAI Embeddings 模型
  */
 @Service
 public class EmbeddingServiceImpl implements EmbeddingService {
@@ -30,9 +33,10 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     private final WebClient webClient;
     private final OpenRouterProperties properties;
     private final Retry retrySpec;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     
-    // Qwen3-Embedding-0.6B 的向量维度
-    private static final int EMBEDDING_DIMENSION = 1024;
+    // OpenAI text-embedding-3-small 的向量维度
+    private static final int EMBEDDING_DIMENSION = 1536;
     
     public EmbeddingServiceImpl(WebClient openRouterWebClient, 
                                 OpenRouterProperties properties) {
@@ -81,13 +85,21 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             requestBody.put("input", text);
             
             // 调用 OpenRouter Embeddings API
-            EmbeddingResponse response = webClient.post()
+            String requestJson = objectMapper.writeValueAsString(requestBody);
+            log.debug("Embedding API request body: {}", requestJson);
+            
+            String responseBody = webClient.post()
                     .uri("/embeddings")
                     .bodyValue(requestBody)
                     .retrieve()
-                    .bodyToMono(EmbeddingResponse.class)
+                    .bodyToMono(String.class)
                     .retryWhen(retrySpec)
                     .block();
+            
+            log.debug("Embedding API raw response (first 500 chars): {}", 
+                    responseBody != null ? responseBody.substring(0, Math.min(500, responseBody.length())) : "null");
+            
+            EmbeddingResponse response = objectMapper.readValue(responseBody, EmbeddingResponse.class);
             
             if (response == null || response.getData() == null || response.getData().isEmpty()) {
                 log.error("Embedding API returned empty data for model: {}", properties.getEmbeddingModel());
@@ -150,13 +162,18 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             requestBody.put("input", texts);
             
             // 调用 OpenRouter Embeddings API
-            EmbeddingResponse response = webClient.post()
+            String responseBody = webClient.post()
                     .uri("/embeddings")
                     .bodyValue(requestBody)
                     .retrieve()
-                    .bodyToMono(EmbeddingResponse.class)
+                    .bodyToMono(String.class)
                     .retryWhen(retrySpec)
                     .block();
+            
+            log.debug("Batch embedding API raw response (first 500 chars): {}", 
+                    responseBody != null ? responseBody.substring(0, Math.min(500, responseBody.length())) : "null");
+            
+            EmbeddingResponse response = objectMapper.readValue(responseBody, EmbeddingResponse.class);
             
             if (response == null || response.getData() == null || response.getData().isEmpty()) {
                 throw new BusinessException(HttpStatus.BAD_GATEWAY.value(), "向量化服务返回空结果");
@@ -221,6 +238,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     /**
      * Embeddings API 响应结构（OpenAI 兼容格式）
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class EmbeddingResponse {
         private String object;
         private List<EmbeddingData> data;
@@ -263,6 +281,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     /**
      * 单个向量数据
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class EmbeddingData {
         private String object;
         private float[] embedding;
@@ -296,8 +315,11 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     /**
      * API 使用统计
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class Usage {
+        @JsonProperty("prompt_tokens")
         private int promptTokens;
+        @JsonProperty("total_tokens")
         private int totalTokens;
         
         public int getPromptTokens() {

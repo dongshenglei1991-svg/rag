@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.ProxyProvider;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
@@ -45,12 +46,23 @@ public class OpenRouterConfig {
                         .addHandlerLast(new ReadTimeoutHandler(properties.getTimeout(), TimeUnit.MILLISECONDS))
                         .addHandlerLast(new WriteTimeoutHandler(properties.getTimeout(), TimeUnit.MILLISECONDS)));
         
+        // 配置 HTTP 代理
+        String proxyHost = properties.getProxyHost();
+        Integer proxyPort = properties.getProxyPort();
+        if (proxyHost != null && !proxyHost.isEmpty() && proxyPort != null) {
+            log.info("Using HTTP proxy: {}:{}", proxyHost, proxyPort);
+            httpClient = httpClient.proxy(proxy -> proxy
+                    .type(ProxyProvider.Proxy.HTTP)
+                    .host(proxyHost)
+                    .port(proxyPort));
+        }
+        
         return WebClient.builder()
                 .baseUrl(properties.getBaseUrl())
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 // 配置默认请求头
                 .defaultHeader("Authorization", "Bearer " + properties.getApiKey())
-                .defaultHeader("HTTP-Referer", "https://github.com/your-repo")  // OpenRouter 要求的 Referer
+                .defaultHeader("HTTP-Referer", "https://github.com/dongshenglei1991-svg/rag")  // OpenRouter 要求的 Referer
                 .defaultHeader("X-Title", "RAG Retrieval System")  // OpenRouter 要求的应用标题
                 .defaultHeader("Content-Type", "application/json")
                 // 添加请求日志过滤器

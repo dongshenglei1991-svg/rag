@@ -24,9 +24,9 @@ public class OpenRouterProperties {
     
     /**
      * 向量化模型
-     * 默认: qwen/qwen3-embedding-0.6b
+     * 默认: openai/text-embedding-3-small
      */
-    private String embeddingModel = "qwen/qwen3-embedding-0.6b";
+    private String embeddingModel = "openai/text-embedding-3-small";
     
     /**
      * 对话模型
@@ -45,6 +45,16 @@ public class OpenRouterProperties {
      * 默认: 3
      */
     private Integer maxRetries = 3;
+    
+    /**
+     * HTTP 代理主机
+     */
+    private String proxyHost;
+    
+    /**
+     * HTTP 代理端口
+     */
+    private Integer proxyPort;
     
     // Getters and Setters
     
@@ -94,5 +104,21 @@ public class OpenRouterProperties {
     
     public void setMaxRetries(Integer maxRetries) {
         this.maxRetries = maxRetries;
+    }
+    
+    public String getProxyHost() {
+        return proxyHost;
+    }
+    
+    public void setProxyHost(String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
+    
+    public Integer getProxyPort() {
+        return proxyPort;
+    }
+    
+    public void setProxyPort(Integer proxyPort) {
+        this.proxyPort = proxyPort;
     }
 }

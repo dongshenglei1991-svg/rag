@@ -50,7 +50,7 @@ public class QdrantClient {
                     .bodyToMono(String.class)
                     .block();
             
-            if (response != null) {
+            if (response != null && response.contains("\"status\":\"ok\"")) {
                 log.debug("Collection '{}' exists", collectionName);
                 return true;
             }
@@ -80,12 +80,12 @@ public class QdrantClient {
             vectors.put("distance", distance);
             requestBody.put("vectors", vectors);
             
-            String requestJson = JSONUtil.toJsonStr(requestBody);
-            log.debug("Creating collection '{}' with request: {}", collectionName, requestJson);
+            log.debug("Creating collection '{}' with request: {}", collectionName, requestBody);
             
             String response = qdrantWebClient.put()
                     .uri("/collections/{collection_name}", collectionName)
-                    .bodyValue(requestJson)
+                    .header("Content-Type", "application/json")
+                    .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(String.class)
                     .block();

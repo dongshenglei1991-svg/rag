@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @SpringBootTest
 @TestPropertySource(properties = {
-    "openrouter.api-key=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",
+    "openrouter.api-key=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",
     "openrouter.base-url=https://openrouter.ai/api/v1",
-    "openrouter.embedding-model=qwen/qwen3-embedding-0.6b",
+    "openrouter.embedding-model=openai/text-embedding-3-small",
     "openrouter.chat-model=openai/gpt-4",
     "openrouter.timeout=30000",
     "openrouter.max-retries=3"
@@ -51,8 +51,8 @@ class OpenRouterConfigTest {
                 "Base URL should be https://openrouter.ai/api/v1");
         
         // 验证模型配置
-        assertEquals("qwen/qwen3-embedding-0.6b", properties.getEmbeddingModel(), 
-                "Embedding model should be qwen/qwen3-embedding-0.6b");
+        assertEquals("openai/text-embedding-3-small", properties.getEmbeddingModel(), 
+                "Embedding model should be openai/text-embedding-3-small");
         assertEquals("openai/gpt-4", properties.getChatModel(), 
                 "Chat model should be openai/gpt-4");
         

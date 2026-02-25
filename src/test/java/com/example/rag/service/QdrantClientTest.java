@@ -58,7 +58,7 @@ class QdrantClientTest {
         
         assertNotNull(info, "Collection info should not be null");
         assertTrue(info.contains("vectors"), "Collection info should contain vectors configuration");
-        assertTrue(info.contains("1024"), "Collection should have dimension 1024");
+        assertTrue(info.contains("1536"), "Collection should have dimension 1536");
         assertTrue(info.contains("Cosine"), "Collection should use Cosine distance");
     }
     

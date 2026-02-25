@@ -1,6 +1,7 @@
 package com.example.rag.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.example.rag.config.JsonbTypeHandler;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +9,7 @@ import java.time.LocalDateTime;
  * 查询历史实体类
  * 存储用户查询和系统响应的历史记录
  */
-@TableName("query_history")
+@TableName(value = "query_history", autoResultMap = true)
 public class QueryHistory {
     
     /**
@@ -31,6 +32,7 @@ public class QueryHistory {
      * 检索到的文档片段信息（JSON格式）
      * 存储片段ID、文档名称、相似度分数等信息
      */
+    @TableField(typeHandler = JsonbTypeHandler.class)
     private String retrievedChunks;
     
     /**
